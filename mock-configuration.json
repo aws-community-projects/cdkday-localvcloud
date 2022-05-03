@@ -2,27 +2,9 @@
   "StateMachines": {
     "LocalTesting": {
       "TestCases": {
-        "HappyPathTest": {
-          "GetByCountry": "GetByCountrySuccess"
-        }
+        "HappyPathTest": {}
       }
     }
   },
-  "MockedResponses": {
-    "GetByCountrySuccess": {
-      "0": {
-        "Return": {
-          "Item": {
-            "pk": {
-              "S": "USA"
-            },
-            "Age": {
-              "N": "16"
-            }
-          }
-        },
-        "StatusCode": 200
-      }
-    }
-  }
+  "MockedResponses": {}
 }
