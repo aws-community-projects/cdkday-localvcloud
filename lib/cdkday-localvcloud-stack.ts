@@ -1,18 +1,15 @@
 import { Stack, StackProps } from 'aws-cdk-lib';
 import { AttributeType, Table } from 'aws-cdk-lib/aws-dynamodb';
+import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { LogGroup } from 'aws-cdk-lib/aws-logs';
 import {
   Choice,
   Condition,
-  JsonPath,
   LogLevel,
   Pass,
   StateMachine,
 } from 'aws-cdk-lib/aws-stepfunctions';
-import {
-  DynamoAttributeValue,
-  DynamoGetItem,
-} from 'aws-cdk-lib/aws-stepfunctions-tasks';
+import { LambdaInvoke } from 'aws-cdk-lib/aws-stepfunctions-tasks';
 import { Construct } from 'constructs';
 
 export class CdkdayLocalvcloudStack extends Stack {
@@ -24,12 +21,25 @@ export class CdkdayLocalvcloudStack extends Stack {
       tableName: 'DrivingAge',
     });
 
-    const getItem = new DynamoGetItem(this, 'GetByCountry', {
-      key: {
-        pk: DynamoAttributeValue.fromString(JsonPath.stringAt('$.Country')),
-      },
+    const fn = new NodejsFunction(this, 'CheckAgeFn', {
+      environment: { TABLE_NAME: table.tableName },
+      entry: 'lib/check-age.ts',
+      functionName: 'CheckAgeFn',
+    });
+
+    table.grantReadData(fn);
+
+    // const getItem = new DynamoGetItem(this, 'GetByCountry', {
+    //   key: {
+    //     pk: DynamoAttributeValue.fromString(JsonPath.stringAt('$.Country')),
+    //   },
+    //   resultPath: '$.Result',
+    //   table,
+    // });
+
+    const checkAge = new LambdaInvoke(this, 'CheckAge', {
+      lambdaFunction: fn,
       resultPath: '$.Result',
-      table,
     });
 
     const oldEnough = new Choice(this, 'Can you drive?');
@@ -38,26 +48,15 @@ export class CdkdayLocalvcloudStack extends Stack {
 
     const cannotDrive = new Pass(this, 'Cannot Drive');
 
-    /**
-     * WARNING! THIS DOES NOT WORK!
-     * DynamoDB always returns string values and ASL sadly can't convert.
-     * This comparison will end up being 16 > "16" and will always be true.
-     *
-     * To fix this, we need to introduce a Lambda function instead of the direct DynamoDB integration.
-     * Alternately, we could pivot to a different app that doesn't need to get numbers from DynamoDB.
-     */
     oldEnough.when(
-      Condition.numberGreaterThanEqualsJsonPath('$.Age', '$.Result.Item.Age.N'),
+      Condition.numberGreaterThanEqualsJsonPath('$.Age', '$.Result.Payload'),
       canDrive
     );
 
-    oldEnough.when(
-      Condition.numberLessThanJsonPath('$.Age', '$.Result.Item.Age.N'),
-      cannotDrive
-    );
+    oldEnough.otherwise(cannotDrive);
 
     new StateMachine(this, 'DrivingAgeStateMachine', {
-      definition: getItem.next(oldEnough),
+      definition: checkAge.next(oldEnough),
       logs: {
         destination: new LogGroup(this, 'DrivingAgeStateMachineLogs'),
         includeExecutionData: true,

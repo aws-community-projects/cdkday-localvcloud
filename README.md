@@ -7,6 +7,7 @@ Thanks for the inspiration!
 Requirements
 - NodeJS 14+
 - aws cli
+- aws sam cli
 - Docker for Desktop
 
 Use
