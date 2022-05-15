@@ -1,5 +1,6 @@
 import { Stack, StackProps } from 'aws-cdk-lib';
 import { AttributeType, Table } from 'aws-cdk-lib/aws-dynamodb';
+import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { LogGroup } from 'aws-cdk-lib/aws-logs';
 import {
@@ -7,6 +8,7 @@ import {
   Condition,
   LogLevel,
   Pass,
+  Result,
   StateMachine,
 } from 'aws-cdk-lib/aws-stepfunctions';
 import { LambdaInvoke } from 'aws-cdk-lib/aws-stepfunctions-tasks';
@@ -25,17 +27,10 @@ export class CdkdayLocalvcloudStack extends Stack {
       environment: { TABLE_NAME: table.tableName },
       entry: 'lib/check-age.ts',
       functionName: 'CheckAgeFn',
+      runtime: Runtime.NODEJS_16_X,
     });
 
     table.grantReadData(fn);
-
-    // const getItem = new DynamoGetItem(this, 'GetByCountry', {
-    //   key: {
-    //     pk: DynamoAttributeValue.fromString(JsonPath.stringAt('$.Country')),
-    //   },
-    //   resultPath: '$.Result',
-    //   table,
-    // });
 
     const checkAge = new LambdaInvoke(this, 'CheckAge', {
       lambdaFunction: fn,
@@ -44,9 +39,13 @@ export class CdkdayLocalvcloudStack extends Stack {
 
     const oldEnough = new Choice(this, 'Can you drive?');
 
-    const canDrive = new Pass(this, 'Can Drive');
+    const canDrive = new Pass(this, 'Can Drive', {
+      result: Result.fromObject({ canDrive: true }),
+    });
 
-    const cannotDrive = new Pass(this, 'Cannot Drive');
+    const cannotDrive = new Pass(this, 'Cannot Drive', {
+      result: Result.fromObject({ canDrive: false }),
+    });
 
     oldEnough.when(
       Condition.numberGreaterThanEqualsJsonPath('$.Age', '$.Result.Payload'),

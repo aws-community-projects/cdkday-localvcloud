@@ -9,12 +9,13 @@ const { AWS_SAM_LOCAL, TABLE_NAME } = process.env;
 
 const docClient = DynamoDBDocumentClient.from(
   new DynamoDBClient({
-    endpoint: AWS_SAM_LOCAL ? 'http://ddb:8000' : '',
+    endpoint: AWS_SAM_LOCAL && 'http://ddb:8000',
   })
 );
 
 export const handler = async (event: InputEvent): Promise<number> => {
   const { Country } = event;
+  console.log('TABLE_NAME', TABLE_NAME);
   const command = new GetCommand({
     Key: { pk: Country },
     TableName: TABLE_NAME,

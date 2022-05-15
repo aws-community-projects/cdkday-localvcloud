@@ -1,0 +1,15 @@
+{
+  "DrivingAgeTable8E413A64": [
+    {
+      "PutRequest": {
+        "Item": { "pk": { "S": "Germany" }, "Age": { "N": "17" } }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": { "pk": { "S": "Pakistan" }, "Age": { "N": "18" } }
+      }
+    },
+    { "PutRequest": { "Item": { "pk": { "S": "USA" }, "Age": { "N": "16" } } } }
+  ]
+}
