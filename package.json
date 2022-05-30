@@ -7,23 +7,26 @@
   "scripts": {
     "deploy": "cdk deploy",
     "destroy": "cdk destroy",
-    "start": "./start.sh"
+    "start": "./start.sh",
+    "test": "vitest run --coverage"
   },
   "devDependencies": {
     "@types/jest": "^27.5.1",
     "@types/node": "^16.11.35",
-    "aws-cdk": "2.24.1",
+    "aws-cdk": "2.25.0",
+    "c8": "^7.11.3",
     "cdk-asl-extractor": "^1.0.1",
     "esbuild": "^0.14.39",
     "jest": "^28.1.0",
     "ts-jest": "^28.0.2",
     "ts-node": "^10.7.0",
-    "typescript": "~4.6.4"
+    "typescript": "~4.7.2",
+    "vitest": "^0.12.10"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.87.0",
     "@aws-sdk/lib-dynamodb": "^3.87.0",
-    "aws-cdk-lib": "2.24.1",
+    "aws-cdk-lib": "2.25.0",
     "constructs": "^10.1.7",
     "source-map-support": "^0.5.16"
   }

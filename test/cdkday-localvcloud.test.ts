@@ -1,17 +1,18 @@
-// import * as cdk from 'aws-cdk-lib';
-// import { Template } from 'aws-cdk-lib/assertions';
-// import * as CdkdayLocalvcloud from '../lib/cdkday-localvcloud-stack';
+import * as cdk from 'aws-cdk-lib';
+import { Template } from 'aws-cdk-lib/assertions';
+import { expect, test } from 'vitest';
 
-// example test. To run these tests, uncomment this file along with the
-// example resource in lib/cdkday-localvcloud-stack.ts
-test('SQS Queue Created', () => {
-//   const app = new cdk.App();
-//     // WHEN
-//   const stack = new CdkdayLocalvcloud.CdkdayLocalvcloudStack(app, 'MyTestStack');
-//     // THEN
-//   const template = Template.fromStack(stack);
+import * as CdkdayLocalvcloud from '../lib/cdkday-localvcloud-stack';
 
-//   template.hasResourceProperties('AWS::SQS::Queue', {
-//     VisibilityTimeout: 300
-//   });
+test('Create Stack', () => {
+  const app = new cdk.App();
+  // WHEN
+  const stack = new CdkdayLocalvcloud.CdkdayLocalvcloudStack(
+    app,
+    'MyTestStack'
+  );
+  // THEN
+  const template = Template.fromStack(stack);
+
+  expect(template).toMatchSnapshot();
 });

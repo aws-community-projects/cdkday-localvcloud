@@ -15,7 +15,6 @@ const docClient = DynamoDBDocumentClient.from(
 
 export const handler = async (event: InputEvent): Promise<number> => {
   const { Country } = event;
-  console.log('TABLE_NAME', TABLE_NAME);
   const command = new GetCommand({
     Key: { pk: Country },
     TableName: TABLE_NAME,
